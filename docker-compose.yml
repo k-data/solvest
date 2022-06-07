@@ -1,0 +1,13 @@
+#docker-compose.yml
+version: '3'
+
+services:
+  app:
+    build:
+      context: ./work
+      dockerfile: Dockerfile
+    ports:
+        - '5555:8888'
+    container_name: honest_app
+    volumes:
+      - '.:/work'
