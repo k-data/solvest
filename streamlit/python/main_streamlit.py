@@ -110,7 +110,7 @@ elif choice == "ログイン":
 			st.write('sample')
 			@st.cache(allow_output_mutation=True)
 			def read_file(file):
-				df=pd.read_csv(file)
+				df=pd.read_csv(file,engine="python")
 				df['伝票日付'] = df['伝票日付'].apply(lambda x: x.replace('/', '-'))
 				return df
 			
