@@ -124,7 +124,7 @@ elif choice == "ログイン":
 				if file_1 != None:
 					df1 = read_file(file_1)
 					df1 = df1.dropna(axis=1)
-					df1['伝票日付'] = df1['伝票日付'].apply(lambda x: x[:7])
+					df1['伝票日付'] = df1['伝票日付'].apply(lambda x: x[:8])
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
 					df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
 					df1['day'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[2]))
