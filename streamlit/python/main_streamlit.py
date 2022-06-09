@@ -112,6 +112,8 @@ elif choice == "ログイン":
 			def read_file(file):
 				df=pd.read_csv(file,engine="python")
 				df['伝票日付'] = df['伝票日付'].apply(lambda x: x.replace('/', '-'))
+				df1['伝票日付'] = df1['伝票日付'].apply(lambda x: x[:11])
+
 				return df
 			
 			file_1 = st.sidebar.file_uploader('ファイルアップロード1', type='csv')
@@ -124,7 +126,6 @@ elif choice == "ログイン":
 				if file_1 != None:
 					df1 = read_file(file_1)
 					df1 = df1.dropna(axis=1)
-					df1['伝票日付'] = df1['伝票日付'].apply(lambda x: x[:11])
 					st.write(df1)
 			# 		df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
 			# 		df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
