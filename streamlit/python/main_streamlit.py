@@ -125,80 +125,81 @@ elif choice == "ログイン":
 					df1 = read_file(file_1)
 					df1 = df1.dropna(axis=1)
 					df1['伝票日付'] = df1['伝票日付'].apply(lambda x: x[:8])
-					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
-					df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
-					df1['day'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[2]))
+					st.write(df1)
+					# df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
+			# 		df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
+			# 		df1['day'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[2]))
 
 
 
-					button = st.checkbox('show')
+			# 		button = st.checkbox('show')
 
-					if button == True:
+			# 		if button == True:
 					
-						custmers = [i for i in df1['得意先'].unique()] 
+			# 			custmers = [i for i in df1['得意先'].unique()] 
 
 						
 								
-						chose = st.selectbox('顧客を選択してください　↓', custmers)	
-						df1 = df1[df1['得意先'] == chose]
+			# 			chose = st.selectbox('顧客を選択してください　↓', custmers)	
+			# 			df1 = df1[df1['得意先'] == chose]
 									
 							
 						
-						df1_sum = df1.groupby('商品').sum()
-						df1_sum['商品'] = df1_sum.index
-						df1_month = df1.groupby('month').sum()
-						df1_month['month'] = df1_month.index
-						b = st.checkbox('data')
-						if b == True:
-							year = df1['year'].unique()[0]
-							st.subheader(f'{chose}: {year}年:商品構成比 (kg)')	
-							fig = px.pie(df1_sum, values='正味重量_明細', names='商品')
-							st.plotly_chart(fig)
-							bottun2 = st.checkbox(f'{year}年月別数量比較')
-							if bottun2 == True:
-								fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
-								sns.barplot(x='month', y='正味重量_明細',data=df1_month, ax=ax)
-								ax.set_ylabel('kg')
-								st.pyplot(fig)
+			# 			df1_sum = df1.groupby('商品').sum()
+			# 			df1_sum['商品'] = df1_sum.index
+			# 			df1_month = df1.groupby('month').sum()
+			# 			df1_month['month'] = df1_month.index
+			# 			b = st.checkbox('data')
+			# 			if b == True:
+			# 				year = df1['year'].unique()[0]
+			# 				st.subheader(f'{chose}: {year}年:商品構成比 (kg)')	
+			# 				fig = px.pie(df1_sum, values='正味重量_明細', names='商品')
+			# 				st.plotly_chart(fig)
+			# 				bottun2 = st.checkbox(f'{year}年月別数量比較')
+			# 				if bottun2 == True:
+			# 					fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
+			# 					sns.barplot(x='month', y='正味重量_明細',data=df1_month, ax=ax)
+			# 					ax.set_ylabel('kg')
+			# 					st.pyplot(fig)
 
-			else:
-				if file_2 != None:
-					df1 = read_file(file_2)
-					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
-					df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
-					df1['day'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[2]))
+			# else:
+			# 	if file_2 != None:
+			# 		df1 = read_file(file_2)
+			# 		df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
+			# 		df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
+			# 		df1['day'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[2]))
 
 
 
-					button = st.checkbox('show')
+			# 		button = st.checkbox('show')
 
-					if button == True:
+			# 		if button == True:
 					
-						custmers = [i for i in df1['得意先'].unique()] 
+			# 			custmers = [i for i in df1['得意先'].unique()] 
 
 						
 								
-						chose = st.selectbox('顧客を選択してください　↓', custmers)	
-						df1 = df1[df1['得意先'] == chose]
+			# 			chose = st.selectbox('顧客を選択してください　↓', custmers)	
+			# 			df1 = df1[df1['得意先'] == chose]
 									
 							
 						
-						df1_sum = df1.groupby('商品').sum()
-						df1_sum['商品'] = df1_sum.index
-						df1_month = df1.groupby('month').sum()
-						df1_month['month'] = df1_month.index
-						b = st.checkbox('data')
-						if b == True:
-							year = df1['year'].unique()[0]
-							st.subheader(f'{chose}: {year}年:商品構成比 (kg)')	
-							fig = px.pie(df1_sum, values='正味重量_明細', names='商品')
-							st.plotly_chart(fig)
-							bottun2 = st.checkbox(f'{year}年月別数量比較')
-							if bottun2 == True:
-								fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
-								sns.barplot(x='month', y='正味重量_明細',data=df1_month, ax=ax)
-								ax.set_ylabel('kg')
-								st.pyplot(fig)
+			# 			df1_sum = df1.groupby('商品').sum()
+			# 			df1_sum['商品'] = df1_sum.index
+			# 			df1_month = df1.groupby('month').sum()
+			# 			df1_month['month'] = df1_month.index
+			# 			b = st.checkbox('data')
+			# 			if b == True:
+			# 				year = df1['year'].unique()[0]
+			# 				st.subheader(f'{chose}: {year}年:商品構成比 (kg)')	
+			# 				fig = px.pie(df1_sum, values='正味重量_明細', names='商品')
+			# 				st.plotly_chart(fig)
+			# 				bottun2 = st.checkbox(f'{year}年月別数量比較')
+			# 				if bottun2 == True:
+			# 					fig, ax = plt.subplots(1, 1, figsize=(10, 8)) 
+			# 					sns.barplot(x='month', y='正味重量_明細',data=df1_month, ax=ax)
+			# 					ax.set_ylabel('kg')
+			# 					st.pyplot(fig)
 
 
 
