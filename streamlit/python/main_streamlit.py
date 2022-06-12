@@ -196,7 +196,6 @@ elif choice == "ログイン":
 								st.write(df1_sum.iloc[:,:2])
 								st.bar_chart(df1_sum.iloc[:,0])
 								fig = px.pie(df1_sum, values=value, names='商品')
-								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
 								data_check = st.checkbox('check')
 								if data_check == True:
@@ -315,7 +314,6 @@ elif choice == "ログイン":
 								st.write(df2_sum.iloc[:,:2])
 								st.bar_chart(df2_sum.iloc[:,0])
 								fig = px.pie(df2_sum, values=value, names='商品')
-								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
 								data_check = st.checkbox('check')
 								if data_check == True:
@@ -432,7 +430,6 @@ elif choice == "ログイン":
 								st.write(df3_sum.iloc[:,:2])
 								st.bar_chart(df3_sum.iloc[:,0])
 								fig = px.pie(df3_sum, values=value, names='商品')
-								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
 								data_check = st.checkbox('check')
 								if data_check == True:
