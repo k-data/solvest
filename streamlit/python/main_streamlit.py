@@ -69,7 +69,13 @@ def return_int(time):
     	return int(3)
     else:
         return int(time)
-
+value_kongou = ['混合廃棄物（フライト）','混合廃棄物（がれき類）','混合廃棄物Ａ　','混合廃棄物Ａ（Retail）','混合廃棄物Ａ（Marｌceting）','混合廃棄物Ａ（MV）','混合廃棄物Ａ（IT）','混合廃棄物Ａ（EC）', '混合廃棄物Ａ（CS）','混合廃棄物（金属くず・廃プラ・ガラ陶）','混合廃棄物（金属くず・廃プラ）','混合廃棄物（木くず・廃プラ）','ｶﾞﾗｽ・ｺﾝｸﾘｰﾄ・陶磁器くず','混合廃棄物\u3000（フライト）','混合廃棄物（木くず・廃プラ）','混合廃棄物（ボード混入）','混合廃棄物（処理困難物）', '混合廃棄物','混合廃棄物Ａ', '混合廃棄物Ｂ', '混合廃棄物Ｃ', '混合廃棄物（安定型）', '混合廃棄物 （ビン・缶・ペットボトル）', '混合廃棄物（ビン・缶・ペットボトル）']
+value_shoukyaku = ['混合廃棄物（焼却物）.','混合廃棄物（焼却物）  ','ビデオテープ','混合廃棄物（布団）','混合廃棄物（靴）','混合廃棄物（反物）','混合廃棄物（臭気物）','混合廃棄物（ソファー）', '混合廃棄物（焼却物）','混合廃棄物（壁紙）']
+value_keiryou = ['軽量物系　Ｂ（グラスウール）  ','軽量物系　Ａ（スタイロフォーム） ','発泡スチロール','軽量物系　Ｂ（スタイロフォーム）','軽量物系\u3000Ａ（岩綿吸音板）','軽量物系\u3000Ａ（スタイロフォーム）  ','軽量物系\u3000Ｂ（充填材）','軽量物系\u3000Ｂ（ＦＲＰ）','軽量物系\u3000Ａ（発泡スチロール）', '軽量物系\u3000Ｂ（グラスウール）', '軽量物系\u3000Ａ（ネオマフォーム）', '軽量物系\u3000Ａ（スタイロフォーム）','軽量物系\u3000Ａ（ウレタン）', '軽量物系\u3000Ａ（スポンジ）']
+value_kikuzu = ['伐根材','木くず','木くずA','生木']
+value_borad = ['石膏ボード　Ｃ ','石膏ボード　Ｄ  ','石膏ボード　Ａ ','パ－テ－ションボ－ド','石膏ボード\u3000Ｃ','石膏ボード\u3000Ａ','石膏ボード\u3000Ｄ','石膏ボード\u3000Ｂ']
+value_haipura = ['廃プラスチック','廃プラスチック類（箱入りシール）','廃プラスチック類','廃プラスチック類','廃プラスチック類（箱入りシール）']
+value_kinzoku = ['選別  ','鉄千地','ＧＤ\u3000','ＧＣ\u3000軽鉄・スチ－ル類', '室外機','室内機','選別','金庫','金属くず','選別\u3000','選別（キャビネット）']
 
 
 
@@ -160,13 +166,39 @@ elif choice == "ログイン":
 						with col2:
 							df1_v = df1.groupby('集計区分').sum()
 							st.bar_chart(df1_v[['正味重量_明細']])
+						value_list = []
+						
+						for i in df1['商品'].values:
+							if i in value_kongou:
+								value_list.append('混合系')
+							elif i in value_keiryou:
+								value_list.append('軽量系')
+							elif i in value_shoukyaku:
+								value_list.append('焼却系')
+							elif i in value_kikuzu:
+								value_list.append('木くず')
+							elif i in value_kinzoku:
+								value_list.append('金属系')
+							elif i in value_borad:
+								value_list.append('石膏ボード系')
+							elif i in value_haipura:
+								value_list.append('廃プラスチック系')
+							else:
+								value_list.append('その他')
+						df1['分類'] = value_list
 
 						type_list = [i for i in df1['集計区分'].unique()]
 						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
 						df1 = df1[df1['集計区分'] == select_type]
 						select_df = df1.groupby('得意先').sum()
 						select_df = select_df.sort_values(sel_col, ascending=False)
-						product_df = df1.groupby('商品').sum()
+						type_df = df1.groupby('分類').sum()
+						type_df['分類'] = type_df.index
+						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
+						st.plotly_chart(fig)
+						product = st.select_slider('選択してください', type_df.index)
+						product_df = df1[df1['分類'] == product]
+						product_df = product_df.groupby('商品').sum()
 						st.bar_chart(product_df[sel_col])
 						st.write(f'{select_type} 上位順')
 						st.write(select_df[colum_list])
@@ -196,6 +228,7 @@ elif choice == "ログイン":
 								st.write(df1_sum.iloc[:,:2])
 								st.bar_chart(df1_sum.iloc[:,0])
 								fig = px.pie(df1_sum, values=value, names='商品')
+								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
 								data_check = st.checkbox('check')
 								if data_check == True:
@@ -278,16 +311,43 @@ elif choice == "ログイン":
 						with col2:
 							df2_v = df2.groupby('集計区分').sum()
 							st.bar_chart(df2_v[['正味重量_明細']])
+						value_list = []
 						
+						for i in df2['商品'].values:
+							if i in value_kongou:
+								value_list.append('混合系')
+							elif i in value_keiryou:
+								value_list.append('軽量系')
+							elif i in value_shoukyaku:
+								value_list.append('焼却系')
+							elif i in value_kikuzu:
+								value_list.append('木くず')
+							elif i in value_kinzoku:
+								value_list.append('金属系')
+							elif i in value_borad:
+								value_list.append('石膏ボード系')
+							elif i in value_haipura:
+								value_list.append('廃プラスチック系')
+							else:
+								value_list.append('その他')
+						df2['分類'] = value_list
+
 						type_list = [i for i in df2['集計区分'].unique()]
 						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
 						df2 = df2[df2['集計区分'] == select_type]
 						select_df = df2.groupby('得意先').sum()
 						select_df = select_df.sort_values(sel_col, ascending=False)
-						product_df = df2.groupby('商品').sum()
+						type_df = df2.groupby('分類').sum()
+						type_df['分類'] = type_df.index
+						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
+						st.plotly_chart(fig)
+						product = st.select_slider('選択してください', type_df.index)
+						product_df = df2[df2['分類'] == product]
+						product_df = product_df.groupby('商品').sum()
 						st.bar_chart(product_df[sel_col])
 						st.write(f'{select_type} 上位順')
 						st.write(select_df[colum_list])
+						
 						custmer = st.text_input('顧客名を入力してください')
 						custm_list = []
 						for i, v in enumerate(custmers):
@@ -314,6 +374,7 @@ elif choice == "ログイン":
 								st.write(df2_sum.iloc[:,:2])
 								st.bar_chart(df2_sum.iloc[:,0])
 								fig = px.pie(df2_sum, values=value, names='商品')
+								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
 								data_check = st.checkbox('check')
 								if data_check == True:
@@ -395,12 +456,39 @@ elif choice == "ログイン":
 						with col2:
 							df3_v = df3.groupby('集計区分').sum()
 							st.bar_chart(df3_v[['正味重量_明細']])
+						value_list = []
+						
+						for i in df3['商品'].values:
+							if i in value_kongou:
+								value_list.append('混合系')
+							elif i in value_keiryou:
+								value_list.append('軽量系')
+							elif i in value_shoukyaku:
+								value_list.append('焼却系')
+							elif i in value_kikuzu:
+								value_list.append('木くず')
+							elif i in value_kinzoku:
+								value_list.append('金属系')
+							elif i in value_borad:
+								value_list.append('石膏ボード系')
+							elif i in value_haipura:
+								value_list.append('廃プラスチック系')
+							else:
+								value_list.append('その他')
+						df3['分類'] = value_list
+
 						type_list = [i for i in df3['集計区分'].unique()]
 						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
 						df3 = df3[df3['集計区分'] == select_type]
 						select_df = df3.groupby('得意先').sum()
 						select_df = select_df.sort_values(sel_col, ascending=False)
-						product_df = df3.groupby('商品').sum()
+						type_df = df3.groupby('分類').sum()
+						type_df['分類'] = type_df.index
+						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
+						st.plotly_chart(fig)
+						product = st.select_slider('選択してください', type_df.index)
+						product_df = df3[df3['分類'] == product]
+						product_df = product_df.groupby('商品').sum()
 						st.bar_chart(product_df[sel_col])
 						st.write(f'{select_type} 上位順')
 						st.write(select_df[colum_list])
@@ -430,6 +518,7 @@ elif choice == "ログイン":
 								st.write(df3_sum.iloc[:,:2])
 								st.bar_chart(df3_sum.iloc[:,0])
 								fig = px.pie(df3_sum, values=value, names='商品')
+								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
 								data_check = st.checkbox('check')
 								if data_check == True:
@@ -463,6 +552,7 @@ elif choice == "ログイン":
 										st.bar_chart(df3_day[sel_col])
 										sum_kg = df3_day[value].sum()
 										st.write(f'{month_list[0]}月 合計{sum_kg}円')
+
 									else:
 										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
 										df3 = df3[df3['month'] == choice_month]
@@ -471,9 +561,7 @@ elif choice == "ログイン":
 										st.bar_chart(df3_day[sel_col])
 										sum_kg = df3_day[value].sum()
 										st.write(f'{choice_month}月 合計{sum_kg}円')
-		
-
-
-
+								
+								
 
 
