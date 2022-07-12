@@ -132,7 +132,7 @@ elif choice == "ログイン":
 				if file_1 != None:
 					df1 = read_file(file_1)
 					
-					df1 = df1[['伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
+					df1 = df1[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df1 = df1.dropna()
 					con = sqlite3.connect('file1.db')
 					cursor = con.cursor()
@@ -291,7 +291,7 @@ elif choice == "ログイン":
 			elif chose_list == file_list[1]:
 				if file_2 != None:
 					df2 = read_file(file_2)
-					df2 = df2[['伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
+					df2 = df2[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df2 = df2.dropna()
 					con = sqlite3.connect('file2.db')
 					cursor = con.cursor()
@@ -451,7 +451,7 @@ elif choice == "ログイン":
 					df3 = read_file(file_3)
 					
 					
-					df3 = df3[['伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
+					df3 = df3[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df3 = df3.dropna()
 					con = sqlite3.connect('file3.db')
 					cursor = con.cursor()
@@ -465,7 +465,7 @@ elif choice == "ログイン":
 	
 					for idx, row in df3.iterrows():
 						cursor.execute(insert_data,(row))
-					con.commit()
+					con.commit(cd )
 					con.close()
 					custmers = [i for i in df3['得意先'].unique()] 
 					df3['year'] = df3['伝票日付'].apply(lambda x: int(x[:4]))	
