@@ -134,6 +134,21 @@ elif choice == "ログイン":
 					
 					df1 = df1[['伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df1 = df1.dropna()
+					con = sqlite3.connect('file1.db')
+					cursor = con.cursor()
+					create_data = """CREATE TABLE IF NOT EXISTS file1
+							   (id INTEGER, day TEXT, custmers TEXT, product TEXT, type TEXT, kg INTEGER, revenue INTEGER)
+							   """
+					cursor.execute(create_data)
+					insert_data = """
+					              INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
+					              """
+	
+					for idx, row in df1.iterrows():
+						cursor.execute(insert_data,(row))
+					con.commit()
+					con.close()
+					
 					custmers = [i for i in df1['得意先'].unique()] 
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
 					df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
@@ -278,6 +293,20 @@ elif choice == "ログイン":
 					df2 = read_file(file_2)
 					df2 = df2[['伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df2 = df2.dropna()
+					con = sqlite3.connect('file2.db')
+					cursor = con.cursor()
+					create_data = """CREATE TABLE IF NOT EXISTS file2
+							   (id INTEGER, day TEXT, custmers TEXT, product TEXT, type TEXT, kg INTEGER, revenue INTEGER)
+							   """
+					cursor.execute(create_data)
+					insert_data = """
+					              INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
+					              """
+	
+					for idx, row in df2.iterrows():
+						cursor.execute(insert_data,(row))
+					con.commit()
+					con.close()
 					custmers = [i for i in df2['得意先'].unique()] 
 
 					df2['year'] = df2['伝票日付'].apply(lambda x: int(x[:4]))	
@@ -424,6 +453,20 @@ elif choice == "ログイン":
 					
 					df3 = df3[['伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df3 = df3.dropna()
+					con = sqlite3.connect('file3.db')
+					cursor = con.cursor()
+					create_data = """CREATE TABLE IF NOT EXISTS file3
+							   (id INTEGER, day TEXT, custmers TEXT, product TEXT, type TEXT, kg INTEGER, revenue INTEGER)
+							   """
+					cursor.execute(create_data)
+					insert_data = """
+					              INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
+					              """
+	
+					for idx, row in df3.iterrows():
+						cursor.execute(insert_data,(row))
+					con.commit()
+					con.close()
 					custmers = [i for i in df3['得意先'].unique()] 
 					df3['year'] = df3['伝票日付'].apply(lambda x: int(x[:4]))	
 					df3['month'] = df3['伝票日付'].apply(lambda x: int(x.split('-')[1]))
