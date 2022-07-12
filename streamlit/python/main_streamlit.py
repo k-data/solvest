@@ -147,7 +147,6 @@ elif choice == "ログイン":
 					for idx, row in df1.iterrows():
 						cursor.execute(insert_data,(row))
 					con.commit()
-					con.close()
 					
 					custmers = [i for i in df1['得意先'].unique()] 
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
