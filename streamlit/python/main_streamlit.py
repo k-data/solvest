@@ -305,7 +305,7 @@ elif choice == "ログイン":
 					for idx, row in df2.iterrows():
 						cursor.execute(insert_data,(row))
 					con.commit()
-					con.close()
+					
 					custmers = [i for i in df2['得意先'].unique()] 
 
 					df2['year'] = df2['伝票日付'].apply(lambda x: int(x[:4]))	
@@ -464,8 +464,7 @@ elif choice == "ログイン":
 	
 					for idx, row in df3.iterrows():
 						cursor.execute(insert_data,(row))
-					con.commit(cd )
-					con.close()
+					con.commit()
 					custmers = [i for i in df3['得意先'].unique()] 
 					df3['year'] = df3['伝票日付'].apply(lambda x: int(x[:4]))	
 					df3['month'] = df3['伝票日付'].apply(lambda x: int(x.split('-')[1]))
