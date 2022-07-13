@@ -45,11 +45,11 @@ def login_user(username,password):
 	return data
 
 def create_data():
-    create_data = """
+    
+    c.execute("""
                 CREATE TABLE IF NOT EXISTS file1
                 (id INTEGER, day TEXT, custmers TEXT, product TEXT, kg INTEGER, price INTEGER, revenue INTEGER)
-                  """
-    c.execute(create_data)
+                  """)
 
 
 def add_data():
@@ -58,7 +58,7 @@ def add_data():
                   """
 
     for idx, row in df1.iterrows():
-        c.execute(insert_data,(row))
+        c.execute("""INSERT INTO file1 VALUES(?,?,?,?,?,?,?)""",(row))
     conn.commit()
 
 
