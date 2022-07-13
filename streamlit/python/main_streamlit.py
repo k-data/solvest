@@ -22,6 +22,9 @@ from sklearn.model_selection import cross_val_score
 conn = sqlite3.connect('database.db')
 c = conn.cursor()
 
+con = sqlite3.connect('file1.db')
+cursor = con.cursor()
+
 def make_hashes(password):
 	return hashlib.sha256(str.encode(password)).hexdigest()
 
@@ -125,8 +128,7 @@ elif choice == "ログイン":
 					
 					df1 = df1[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
 					df1 = df1.dropna()
-					con = sqlite3.connect('file1.db')
-					cursor = con.cursor()
+					
 					create_data()
 					add_data(df1)
 
