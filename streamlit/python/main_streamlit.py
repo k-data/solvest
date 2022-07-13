@@ -52,13 +52,13 @@ def create_data():
     c.execute(create_data)
 
 
-def add_data(df1):
+def add_data():
     insert_data = """
                   INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
                   """
 
     for idx, row in df1.iterrows():
-        cursor.execute(insert_data,(row))
+        c.execute(insert_data,(row))
     c.commit()
 
 
