@@ -52,7 +52,7 @@ def create_data():
     c.execute(create_data)
 
 
-def add_data(df):
+def add_data(df1):
     insert_data = """
                   INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
                   """
