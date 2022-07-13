@@ -129,7 +129,7 @@ elif choice == "ログイン":
 					df1 = df1.dropna()
 					
 					create_data()
-					add_data(df1)
+					add_data()
 
 					custmers = [i for i in df1['得意先'].unique()] 
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
