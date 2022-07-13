@@ -128,7 +128,7 @@ elif choice == "ログイン":
 					con = sqlite3.connect('file1.db')
 					cursor = con.cursor()
 					create_data()
-					add_data()
+					add_data(df1)
 
 					custmers = [i for i in df1['得意先'].unique()] 
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
