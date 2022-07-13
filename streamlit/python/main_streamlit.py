@@ -22,8 +22,7 @@ from sklearn.model_selection import cross_val_score
 conn = sqlite3.connect('database.db')
 c = conn.cursor()
 
-con = sqlite3.connect('file1.db')
-cursor = con.cursor()
+
 
 def make_hashes(password):
 	return hashlib.sha256(str.encode(password)).hexdigest()
@@ -50,7 +49,7 @@ def create_data():
                 CREATE TABLE IF NOT EXISTS file1
                 (id INTEGER, day TEXT, custmers TEXT, product TEXT, kg INTEGER, price INTEGER, revenue INTEGER)
                   """
-    cursor.execute(create_data)
+    c.execute(create_data)
 
 
 def add_data(df):
@@ -60,7 +59,7 @@ def add_data(df):
 
     for idx, row in df.iterrows():
         cursor.execute(insert_data,(row))
-    con.commit()
+    c.commit()
 
 
 value_kongou = ['混合廃棄物（フライト）','混合廃棄物（がれき類）','混合廃棄物Ａ　','混合廃棄物Ａ（Retail）','混合廃棄物Ａ（Marｌceting）','混合廃棄物Ａ（MV）','混合廃棄物Ａ（IT）','混合廃棄物Ａ（EC）', '混合廃棄物Ａ（CS）','混合廃棄物（金属くず・廃プラ・ガラ陶）','混合廃棄物（金属くず・廃プラ）','混合廃棄物（木くず・廃プラ）','ｶﾞﾗｽ・ｺﾝｸﾘｰﾄ・陶磁器くず','混合廃棄物\u3000（フライト）','混合廃棄物（木くず・廃プラ）','混合廃棄物（ボード混入）','混合廃棄物（処理困難物）', '混合廃棄物','混合廃棄物Ａ', '混合廃棄物Ｂ', '混合廃棄物Ｃ', '混合廃棄物（安定型）', '混合廃棄物 （ビン・缶・ペットボトル）', '混合廃棄物（ビン・缶・ペットボトル）']
