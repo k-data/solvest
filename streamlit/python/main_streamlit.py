@@ -42,33 +42,24 @@ def login_user(username,password):
 	data = c.fetchall()
 	return data
 
-
-def origin():
-	if 'counter' not in st.session_state:
-		st.session_state['counter'] = 0
-
-
-def plus_one_clicks():
-	st.session_state['counter'] += 1
+def create_data():
+    create_data = """
+                CREATE TABLE IF NOT EXISTS file1
+                (id INTEGER, day TEXT, custmers TEXT, product TEXT, kg INTEGER, price INTEGER, revenue INTEGER)
+                  """
+    cursor.execute(create_data)
 
 
-def return_int(time):
-    if time == '9:':
-        return int(9)
-    elif time == '7:':
-        return int(7)
-    elif time == '6:':
-        return int(6)
-    elif time == '8:':
-        return int(8)
-    elif time == '4:':
-        return int(4)
-    elif time == '0.':
-        return int(0)
-    elif time == '3:':
-    	return int(3)
-    else:
-        return int(time)
+def add_data(df):
+    insert_data = """
+                  INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
+                  """
+
+    for idx, row in df.iterrows():
+        cursor.execute(insert_data,(row))
+    con.commit()
+
+
 value_kongou = ['混合廃棄物（フライト）','混合廃棄物（がれき類）','混合廃棄物Ａ　','混合廃棄物Ａ（Retail）','混合廃棄物Ａ（Marｌceting）','混合廃棄物Ａ（MV）','混合廃棄物Ａ（IT）','混合廃棄物Ａ（EC）', '混合廃棄物Ａ（CS）','混合廃棄物（金属くず・廃プラ・ガラ陶）','混合廃棄物（金属くず・廃プラ）','混合廃棄物（木くず・廃プラ）','ｶﾞﾗｽ・ｺﾝｸﾘｰﾄ・陶磁器くず','混合廃棄物\u3000（フライト）','混合廃棄物（木くず・廃プラ）','混合廃棄物（ボード混入）','混合廃棄物（処理困難物）', '混合廃棄物','混合廃棄物Ａ', '混合廃棄物Ｂ', '混合廃棄物Ｃ', '混合廃棄物（安定型）', '混合廃棄物 （ビン・缶・ペットボトル）', '混合廃棄物（ビン・缶・ペットボトル）']
 value_shoukyaku = ['混合廃棄物（焼却物）.','混合廃棄物（焼却物）  ','ビデオテープ','混合廃棄物（布団）','混合廃棄物（靴）','混合廃棄物（反物）','混合廃棄物（臭気物）','混合廃棄物（ソファー）', '混合廃棄物（焼却物）','混合廃棄物（壁紙）']
 value_keiryou = ['軽量物系　Ｂ（グラスウール）  ','軽量物系　Ａ（スタイロフォーム） ','発泡スチロール','軽量物系　Ｂ（スタイロフォーム）','軽量物系\u3000Ａ（岩綿吸音板）','軽量物系\u3000Ａ（スタイロフォーム）  ','軽量物系\u3000Ｂ（充填材）','軽量物系\u3000Ｂ（ＦＲＰ）','軽量物系\u3000Ａ（発泡スチロール）', '軽量物系\u3000Ｂ（グラスウール）', '軽量物系\u3000Ａ（ネオマフォーム）', '軽量物系\u3000Ａ（スタイロフォーム）','軽量物系\u3000Ａ（ウレタン）', '軽量物系\u3000Ａ（スポンジ）']
@@ -136,18 +127,9 @@ elif choice == "ログイン":
 					df1 = df1.dropna()
 					con = sqlite3.connect('file1.db')
 					cursor = con.cursor()
-					create_data = """CREATE TABLE IF NOT EXISTS file1
-							   (id INTEGER, day TEXT, custmers TEXT, product TEXT, type TEXT, kg INTEGER, revenue INTEGER)
-							   """
-					cursor.execute(create_data)
-					insert_data = """
-					              INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
-					              """
-	
-					for idx, row in df1.iterrows():
-						cursor.execute(insert_data,(row))
-					con.commit()
-					
+					create_data()
+					add_data()
+
 					custmers = [i for i in df1['得意先'].unique()] 
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
 					df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('-')[1]))
