@@ -57,7 +57,7 @@ def add_data(df):
                   INSERT INTO file1 VALUES(?,?,?,?,?,?,?)
                   """
 
-    for idx, row in df.iterrows():
+    for idx, row in df1.iterrows():
         cursor.execute(insert_data,(row))
     c.commit()
 
