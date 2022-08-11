@@ -306,7 +306,7 @@ elif choice == "ログイン":
 						sel_col = st.select_slider('選択してください', colum_list)
 						df2_all = df2.groupby('得意先').sum()
 						df2_all['得意先'] = df2_all.index
-						df2_all = df2_all.iloc[:,:2]
+						df2_all = df2_all.loc[:,['正味重量_明細','金額']]
 						st.write(f'{sel_col}上位順')
 						df2_all = df2_all.sort_values(sel_col, ascending=False)
 						st.area_chart(df2_all[sel_col].values)
@@ -377,8 +377,8 @@ elif choice == "ログイン":
 								df2_sum = df2_sum.loc[options]
 								
 								value = '正味重量_明細'
-								st.write(df2_sum.iloc[:,:2])
-								st.bar_chart(df2_sum.iloc[:,0])
+								st.write(df2_sum.loc[:,['正味重量_明細','金額']])
+								st.bar_chart(df2_sum.iloc[:,'正味重量_明細'])
 								fig = px.pie(df2_sum, values=value, names='商品')
 								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
@@ -464,7 +464,7 @@ elif choice == "ログイン":
 						sel_col = st.select_slider('選択してください', colum_list)
 						df3_all = df3.groupby('得意先').sum()
 						df3_all['得意先'] = df3_all.index
-						df3_all = df3_all.iloc[:,:2]
+						df3_all = df3_all.loc[:,['正味重量_明細','金額']]
 						st.write(f'{sel_col}上位順')
 						df3_all = df3_all.sort_values(sel_col, ascending=False)
 						st.area_chart(df3_all[sel_col].values)
@@ -534,8 +534,8 @@ elif choice == "ログイン":
 								df3_sum = df3_sum.loc[options]
 								
 								value = '正味重量_明細'
-								st.write(df3_sum.iloc[:,:2])
-								st.bar_chart(df3_sum.iloc[:,0])
+								st.write(df3_sum.loc[:,['正味重量_明細','金額']])
+								st.bar_chart(df3_sum.iloc[:,'正味重量_明細'])
 								fig = px.pie(df3_sum, values=value, names='商品')
 								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
