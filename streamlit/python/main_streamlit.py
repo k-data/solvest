@@ -146,9 +146,10 @@ elif choice == "ログイン":
 						sel_col = st.select_slider('選択してください', colum_list)
 						df1_all = df1.groupby('得意先').sum()
 						df1_all['得意先'] = df1_all.index
-						df1_all = df1_all.iloc[:,:2]
-						st.write(f'{sel_col}上位順')
 						st.write(df1_all)
+						# df1_all = df1_all.iloc[:,:2]
+						st.write(f'{sel_col}上位順')
+						
 						# df1_all = df1_all.sort_values(sel_col, ascending=False)
 						# st.area_chart(df1_all[sel_col].values)
 						# with st.container():
