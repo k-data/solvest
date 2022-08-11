@@ -146,123 +146,122 @@ elif choice == "ログイン":
 						sel_col = st.select_slider('選択してください', colum_list)
 						df1_all = df1.groupby('得意先').sum()
 						df1_all['得意先'] = df1_all.index
-						st.write(df1_all)
 						df1_all = df1_all.loc[:,['正味重量_明細','金額']]
 						st.write(f'{sel_col}上位順')
 						
-						# df1_all = df1_all.sort_values(sel_col, ascending=False)
-						# st.area_chart(df1_all[sel_col].values)
-						# with st.container():
-						# 	col1, col2 = st.columns([1, 1])
-						# with col1:
-						# 	st.write(df1_all)
-						# with col2:
-						# 	df1_v = df1.groupby('集計区分').sum()
-						# 	st.bar_chart(df1_v[['正味重量_明細']])
-						# value_list = []
+						df1_all = df1_all.sort_values(sel_col, ascending=False)
+						st.area_chart(df1_all[sel_col].values)
+						with st.container():
+							col1, col2 = st.columns([1, 1])
+						with col1:
+							st.write(df1_all)
+						with col2:
+							df1_v = df1.groupby('集計区分').sum()
+							st.bar_chart(df1_v[['正味重量_明細']])
+						value_list = []
 						
-						# for i in df1['商品'].values:
-						# 	if i in value_kongou:
-						# 		value_list.append('混合系')
-						# 	elif i in value_keiryou:
-						# 		value_list.append('軽量系')
-						# 	elif i in value_shoukyaku:
-						# 		value_list.append('焼却系')
-						# 	elif i in value_kikuzu:
-						# 		value_list.append('木くず')
-						# 	elif i in value_kinzoku:
-						# 		value_list.append('金属系')
-						# 	elif i in value_borad:
-						# 		value_list.append('石膏ボード系')
-						# 	elif i in value_haipura:
-						# 		value_list.append('廃プラスチック系')
-						# 	else:
-						# 		value_list.append('その他')
-						# df1['分類'] = value_list
+						for i in df1['商品'].values:
+							if i in value_kongou:
+								value_list.append('混合系')
+							elif i in value_keiryou:
+								value_list.append('軽量系')
+							elif i in value_shoukyaku:
+								value_list.append('焼却系')
+							elif i in value_kikuzu:
+								value_list.append('木くず')
+							elif i in value_kinzoku:
+								value_list.append('金属系')
+							elif i in value_borad:
+								value_list.append('石膏ボード系')
+							elif i in value_haipura:
+								value_list.append('廃プラスチック系')
+							else:
+								value_list.append('その他')
+						df1['分類'] = value_list
 
-						# type_list = [i for i in df1['集計区分'].unique()]
-						# select_type = st.sidebar.select_slider('種類を選択してください', type_list)
-						# df1 = df1[df1['集計区分'] == select_type]
-						# select_df = df1.groupby('得意先').sum()
-						# select_df = select_df.sort_values(sel_col, ascending=False)
-						# type_df = df1.groupby('分類').sum()
-						# type_df['分類'] = type_df.index
-						# fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
-						# st.plotly_chart(fig)
-						# product = st.select_slider('選択してください', type_df.index)
-						# product_df = df1[df1['分類'] == product]
-						# product_df = product_df.groupby('商品').sum()
-						# st.bar_chart(product_df[sel_col])
-						# st.write(f'{select_type} 上位順')
-						# st.write(select_df[colum_list])
-						# custmer = st.text_input('顧客名を入力してください')
-						# custm_list = []
-						# for i, v in enumerate(custmers):
-						# 	if custmer in v:
-						# 		custm_list.append(v)		
-						# chose = st.selectbox('顧客を選択してください ↓',custm_list)
-						# df1 = df1[df1['得意先'] == chose]
-						# month_list = [i for i in df1['month'].unique()]
+						type_list = [i for i in df1['集計区分'].unique()]
+						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
+						df1 = df1[df1['集計区分'] == select_type]
+						select_df = df1.groupby('得意先').sum()
+						select_df = select_df.sort_values(sel_col, ascending=False)
+						type_df = df1.groupby('分類').sum()
+						type_df['分類'] = type_df.index
+						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
+						st.plotly_chart(fig)
+						product = st.select_slider('選択してください', type_df.index)
+						product_df = df1[df1['分類'] == product]
+						product_df = product_df.groupby('商品').sum()
+						st.bar_chart(product_df[sel_col])
+						st.write(f'{select_type} 上位順')
+						st.write(select_df[colum_list])
+						custmer = st.text_input('顧客名を入力してください')
+						custm_list = []
+						for i, v in enumerate(custmers):
+							if custmer in v:
+								custm_list.append(v)		
+						chose = st.selectbox('顧客を選択してください ↓',custm_list)
+						df1 = df1[df1['得意先'] == chose]
+						month_list = [i for i in df1['month'].unique()]
 							
-						# df1_valance = df1.groupby('集計区分').sum()
-						# df1_valance['集計区分'] = df1_valance.index
-						# df1_sum = df1.groupby('商品').sum()
-						# df1_sum['商品'] = df1_sum.index
-						# df1_day = df1.groupby('day').sum()
-						# df1_day['day'] = df1_day.index
-						# b = st.checkbox('data')
-						# if b == True:
-						# 	if sel_col == colum_list[0]:
-						# 		product_list = [i for i in df1_sum['商品'].unique()]
-						# 		options = st.sidebar.multiselect('商品を選択してください',product_list, product_list)
-						# 		df1_sum = df1_sum.loc[options]
+						df1_valance = df1.groupby('集計区分').sum()
+						df1_valance['集計区分'] = df1_valance.index
+						df1_sum = df1.groupby('商品').sum()
+						df1_sum['商品'] = df1_sum.index
+						df1_day = df1.groupby('day').sum()
+						df1_day['day'] = df1_day.index
+						b = st.checkbox('data')
+						if b == True:
+							if sel_col == colum_list[0]:
+								product_list = [i for i in df1_sum['商品'].unique()]
+								options = st.sidebar.multiselect('商品を選択してください',product_list, product_list)
+								df1_sum = df1_sum.loc[options]
 								
-						# 		value = '正味重量_明細'
-						# 		st.write(df1_sum.iloc[:,:2])
-						# 		st.bar_chart(df1_sum.iloc[:,0])
-						# 		fig = px.pie(df1_sum, values=value, names='商品')
-						# 		fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
-						# 		st.plotly_chart(fig)
-						# 		data_check = st.checkbox('check')
-						# 		if data_check == True:
-						# 			if len(month_list) == 1:
-						# 				st.write(f'{month_list[0]}月 日量推移')
-						# 				st.bar_chart(df1_day[sel_col])
-						# 				sum_kg = df1_day['正味重量_明細'].sum()
-						# 				st.write(f'{month_list[0]}月 合計{sum_kg}kg')
-						# 			else:
-						# 				choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-						# 				df1 = df1[df1['month'] == choice_month]
-						# 				df1_day = df1.groupby('day').sum()
-						# 				st.write(f'{choice_month}月 日量推移')
-						# 				st.bar_chart(df1_day[sel_col])
-						# 				sum_kg = df1_day[value].sum()
-						# 				st.write(f'{choice_month}月 合計{sum_kg}kg')
+								value = '正味重量_明細'
+								st.write(df1_sum.iloc[:,:2])
+								st.bar_chart(df1_sum.iloc[:,0])
+								fig = px.pie(df1_sum, values=value, names='商品')
+								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
+								st.plotly_chart(fig)
+								data_check = st.checkbox('check')
+								if data_check == True:
+									if len(month_list) == 1:
+										st.write(f'{month_list[0]}月 日量推移')
+										st.bar_chart(df1_day[sel_col])
+										sum_kg = df1_day['正味重量_明細'].sum()
+										st.write(f'{month_list[0]}月 合計{sum_kg}kg')
+									else:
+										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
+										df1 = df1[df1['month'] == choice_month]
+										df1_day = df1.groupby('day').sum()
+										st.write(f'{choice_month}月 日量推移')
+										st.bar_chart(df1_day[sel_col])
+										sum_kg = df1_day[value].sum()
+										st.write(f'{choice_month}月 合計{sum_kg}kg')
 							
-						# 	else:
-						# 		value = '金額'
-						# 		if len(df1_sum['商品']) < 15:
-						# 			st.write(f'{chose}: データ全体 :商品構成比 {colum_list[1]}')	
-						# 			fig = px.pie(df1_sum, values=value, names='商品')
-						# 			st.plotly_chart(fig)
-						# 		else:
-						# 			st.bar_chart(df1_sum.loc[:,value])
+							else:
+								value = '金額'
+								if len(df1_sum['商品']) < 15:
+									st.write(f'{chose}: データ全体 :商品構成比 {colum_list[1]}')	
+									fig = px.pie(df1_sum, values=value, names='商品')
+									st.plotly_chart(fig)
+								else:
+									st.bar_chart(df1_sum.loc[:,value])
 
-						# 		data_check = st.checkbox('check')
-						# 		if data_check == True:
-						# 			if len(month_list) == 1:
-						# 				st.write(f'{month_list[0]}月 売上金額推移')
-						# 				st.bar_chart(df1_day[sel_col])
-						# 				sum_kg = df1_day[value].sum()
-						# 				st.write(f'{month_list[0]}月 合計{sum_kg}円')
-						# 			else:
-						# 				choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-						# 				df1 = df1[df1['month'] == choice_month]
-						# 				df1_day = df1.groupby('day').sum()
-						# 				st.write(f'{choice_month}月 売上推移')
-						# 				st.bar_chart(df1_day[sel_col])
-						# 				sum_kg = df1_day[value].sum()
-						# 				st.write(f'{choice_month}月 合計{sum_kg}円')
+								data_check = st.checkbox('check')
+								if data_check == True:
+									if len(month_list) == 1:
+										st.write(f'{month_list[0]}月 売上金額推移')
+										st.bar_chart(df1_day[sel_col])
+										sum_kg = df1_day[value].sum()
+										st.write(f'{month_list[0]}月 合計{sum_kg}円')
+									else:
+										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
+										df1 = df1[df1['month'] == choice_month]
+										df1_day = df1.groupby('day').sum()
+										st.write(f'{choice_month}月 売上推移')
+										st.bar_chart(df1_day[sel_col])
+										sum_kg = df1_day[value].sum()
+										st.write(f'{choice_month}月 合計{sum_kg}円')
 
 
 
