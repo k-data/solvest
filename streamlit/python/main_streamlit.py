@@ -218,7 +218,7 @@ elif choice == "ログイン":
 								
 								value = '正味重量_明細'
 								st.write(df1_sum.loc[:,['正味重量_明細','金額']])
-								st.bar_chart(df1_sum.iloc[:,0])
+								st.bar_chart(df1_sum.loc[:,'正味重量_明細'])
 								fig = px.pie(df1_sum, values=value, names='商品')
 								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
