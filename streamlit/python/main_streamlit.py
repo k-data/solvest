@@ -147,7 +147,7 @@ elif choice == "ログイン":
 						df1_all = df1.groupby('得意先').sum()
 						df1_all['得意先'] = df1_all.index
 						st.write(df1_all)
-						# df1_all = df1_all.iloc[:,:2]
+						df1_all = df1_all.loc[:,['正味重量_明細','金額']]
 						st.write(f'{sel_col}上位順')
 						
 						# df1_all = df1_all.sort_values(sel_col, ascending=False)
