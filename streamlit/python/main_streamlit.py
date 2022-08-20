@@ -366,7 +366,7 @@ elif choice == "ログイン":
 								
 								value = '正味重量_明細'
 								st.write(df2_sum.loc[:,['正味重量_明細','金額']])
-								st.bar_chart(df2_sum.iloc[:,'正味重量_明細'])
+								st.bar_chart(df2_sum.loc[:,'正味重量_明細'])
 								fig = px.pie(df2_sum, values=value, names='商品')
 								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
@@ -511,7 +511,7 @@ elif choice == "ログイン":
 								
 								value = '正味重量_明細'
 								st.write(df3_sum.loc[:,['正味重量_明細','金額']])
-								st.bar_chart(df3_sum.iloc[:,'正味重量_明細'])
+								st.bar_chart(df3_sum.loc[:,'正味重量_明細'])
 								fig = px.pie(df3_sum, values=value, names='商品')
 								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
 								st.plotly_chart(fig)
