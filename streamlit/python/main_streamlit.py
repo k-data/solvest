@@ -128,7 +128,7 @@ elif choice == "ログイン":
 					custmers = [i for i in df1['得意先'].unique()] 
 					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
 					df1['month'] = df1['伝票日付'].apply(lambda x: int(x[5:7])
-					df1['day'] = df1['伝票日付'].apply(lambda x: int(x[-2:])
+					df1['day'] = df1['伝票日付'].apply(lambda x: int(x[-2:]))
 
 
 					button = st.checkbox('show')
