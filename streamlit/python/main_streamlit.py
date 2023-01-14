@@ -126,10 +126,9 @@ elif choice == "ログイン":
 					add_data()
 
 					custmers = [i for i in df1['得意先'].unique()] 
-					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))	
-					df1['month'] = df1['伝票日付'].apply(lambda x: int(x[5:7])
+					df1['year'] = df1['伝票日付'].apply(lambda x: int(x[:4]))
+					df1['month'] = df1['伝票日付'].apply(lambda x: int(x[5:7]))
 					df1['day'] = df1['伝票日付'].apply(lambda x: int(x[-2:]))
-
 
 					button = st.checkbox('show')
 
@@ -151,7 +150,9 @@ elif choice == "ログイン":
 						
 						df1_all = df1_all.sort_values(sel_col, ascending=False)
 						st.area_chart(df1_all[sel_col].values)
-						with st.container():
+
+
+					    with st.container():
 							col1, col2 = st.columns([1, 1])
 						with col1:
 							st.write(df1_all)
