@@ -150,9 +150,7 @@ elif choice == "ログイン":
 						
 						df1_all = df1_all.sort_values(sel_col, ascending=False)
 						st.area_chart(df1_all[sel_col].values)
-
-
-					    with st.container():
+						with st.container():
 							col1, col2 = st.columns([1, 1])
 						with col1:
 							st.write(df1_all)
