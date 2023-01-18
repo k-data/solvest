@@ -138,6 +138,7 @@ elif choice == "ログイン":
 						kg_all = df1['正味重量_明細'].sum()
 						kg_mean = kg_all / len(df1['day'].unique())
 						st.write(f'{year}年 {month}月')
+						st.write(df1['伝票日付'].values)
 						st.write(f'顧客数:{len(custmers)} 搬入量:{kg_all}kg  日量平均:{kg_mean:.2f}kg') 
 						df1_bar = df1.groupby('day').sum()
 						st.bar_chart(df1_bar[['正味重量_明細','金額']])
