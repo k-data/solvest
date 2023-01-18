@@ -274,9 +274,9 @@ elif choice == "ログイン":
 					
 					custmers = [i for i in df2['得意先'].unique()] 
 
-					df2['year'] = df2['伝票日付'].apply(lambda x: int(x[:4]))	
-					df2['month'] = df2['伝票日付'].apply(lambda x: int(x.split('-')[1]))
-					df2['day'] = df2['伝票日付'].apply(lambda x: int(x.split('-')[2]))
+					df2['year'] = df2['伝票日付'].apply(lambda x: int(x.split('/')[0]))	
+					df2['month'] = df2['伝票日付'].apply(lambda x: int(x.split('/')[1]))
+					df2['day'] = df2['伝票日付'].apply(lambda x: int(x.split('/')[2]))
 
 
 					button = st.checkbox('show')
@@ -420,9 +420,9 @@ elif choice == "ログイン":
 					df3 = df3.dropna()
 
 					custmers = [i for i in df3['得意先'].unique()] 
-					df3['year'] = df3['伝票日付'].apply(lambda x: int(x[:4]))	
-					df3['month'] = df3['伝票日付'].apply(lambda x: int(x.split('-')[1]))
-					df3['day'] = df3['伝票日付'].apply(lambda x: int(x.split('-')[2]))
+					df3['year'] = df3['伝票日付'].apply(lambda x: int(x.split('/')[0]))	
+					df3['month'] = df3['伝票日付'].apply(lambda x: int(x.split('/')[1]))
+					df3['day'] = df3['伝票日付'].apply(lambda x: int(x.split('/')[2]))
 
 
 					button = st.checkbox('show')
