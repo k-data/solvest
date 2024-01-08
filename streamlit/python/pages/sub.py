@@ -96,32 +96,36 @@ select_button = st.sidebar.radio('1, 選択してください', select_options)
 st.sidebar.markdown('---')
 
 with col1:
-	st.write('搬入物の内訳')
-	df_revenue_two = df_revenue_two.iloc[:-1,]
 
-	labels = ['処分費', '有価物']
-	values = df_revenue_two.values
+	ex1 = st.expander('搬入物の内訳')
+	with ex1:
+		df_revenue_two = df_revenue_two.iloc[:-1,]
 
-	fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
-	st.plotly_chart(fig)
-	st.write(df_revenue_two)
+		labels = ['処分費', '有価物']
+		values = df_revenue_two.values
+
+		fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+		st.plotly_chart(fig)
+		st.write(df_revenue_two)
 
 with col2:
-	st.write('産廃の内訳')
-	labels = type_list
-	values = df_revenue_type[select_button]
-	fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
-	st.plotly_chart(fig)
-	st.write(df_revenue_type)
+	ex2 = st.expander('産廃の内訳')
+	with ex2:
+		labels = type_list
+		values = df_revenue_type[select_button]
+		fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+		st.plotly_chart(fig)
+		st.write(df_revenue_type)
 
 
 with col3:
-	st.write('混合廃棄物の内訳')
-	labels = product_list
-	values = df_revenue_product[select_button]
-	fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
-	st.plotly_chart(fig)
-	st.write(df_revenue_product)
+	ex3 = st.expander('混合廃棄物の内訳')
+	with ex3:
+		labels = product_list
+		values = df_revenue_product[select_button]
+		fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+		st.plotly_chart(fig)
+		st.write(df_revenue_product)
 
 st.markdown('---')
 date_select = st.sidebar.radio('2, 関係性を観る期間を選択してください', ('全体', '月'))
