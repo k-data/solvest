@@ -3,7 +3,7 @@ pandas == 1.5.0
 numpy
 matplotlib
 seaborn
-streamlit == 1.21.0
+streamlit == 1.29.0
 scikit-learn
 optuna
 xgboost
