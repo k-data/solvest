@@ -202,8 +202,6 @@ with expander2:
 	if 'button_clicked_2' not in st.session_state:
 		st.session_state['button_clicked_2'] = False
 
-# ボタン1が押されたときの動作
-
 
 	# 最初の列にデータフレームを表示
 	with col1:
@@ -221,25 +219,25 @@ with expander2:
 
 		col3, col4 = st.columns(2)
 
-# 		with col3:
-# 			df_cost_year = pd.DataFrame(df_cost.loc[year_select, ['金額', '運搬費']])
-# 			st.write(f'{year_select}年 SOLVEST向け金額構成比')
-# 			labels = ['金額', '運搬費']
-# 			values = df_cost_year[year_select]
-# 			fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
-# 			st.plotly_chart(fig)
+		with col3:
+			df_cost_year = pd.DataFrame(df_cost.loc[year_select, ['金額', '運搬費']])
+			st.write(f'{year_select}年 SOLVEST向け金額構成比')
+			labels = ['金額', '運搬費']
+			values = df_cost_year[year_select]
+			fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+			st.plotly_chart(fig)
 
-# 		with col4:
-# 			options = ['運搬費', '金額']
-# 			select_value = st.radio('選択してください', options)
-# 			df_solvest_year = df_solvest[df_solvest['年'] == year_select]
-# 			df_solvest_year = df_solvest_year.groupby('種類').sum()[['正味重量_明細', '運搬費', '金額','合計金額']]
-# 			df_solvest_year.reset_index(inplace=True)
-# 			# outer_labels = ['運搬費', '']
-# 			labels = df_solvest_year['種類']
-# 			values = df_solvest_year[select_value]
-# 			fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
-# 			st.plotly_chart(fig)
+		with col4:
+			options = ['運搬費', '金額']
+			select_value = st.radio('選択してください', options)
+			df_solvest_year = df_solvest[df_solvest['年'] == year_select]
+			df_solvest_year = df_solvest_year.groupby('種類').sum()[['正味重量_明細', '運搬費', '金額','合計金額']]
+			df_solvest_year.reset_index(inplace=True)
+			# outer_labels = ['運搬費', '']
+			labels = df_solvest_year['種類']
+			values = df_solvest_year[select_value]
+			fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+			st.plotly_chart(fig)
 
 
 
