@@ -38,15 +38,15 @@ def on_button_click_2():
 
 df = pd.read_csv('streamlit/data/cost_all.csv')
 df2 = pd.read_csv('streamlit/data/搬入集計.csv')
-df3 = pd.read_csv('streamlit/data/2021_all.csv')
-df4 = pd.read_csv('streamlit/data/2022_all.csv')
-df5 = pd.read_csv('streamlit/data/2023_all.csv')
+# df3 = pd.read_csv('streamlit/data/2021_all.csv')
+# df4 = pd.read_csv('streamlit/data/2022_all.csv')
+# df5 = pd.read_csv('streamlit/data/2023_all.csv')
 
 datetime(df, '伝票日付')
 datetime(df2, '日付')
-datetime(df3, '伝票日付')
-datetime(df4, '伝票日付')
-datetime(df5, '伝票日付')
+# datetime(df3, '伝票日付')
+# datetime(df4, '伝票日付')
+# datetime(df5, '伝票日付')
 
 
 df_year = df.groupby(['年', '新工場稼働後']).sum()[['正味重量_明細', '合計金額']]
