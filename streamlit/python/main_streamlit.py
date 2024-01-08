@@ -27,11 +27,11 @@ from scipy.stats import randint as sp_randint, uniform
 def datetime(df, column):
 	df[column] = pd.to_datetime(df[column])
 	df['year_month'] = df[column].dt.to_period('M')
-
+	df['year_month'] = df['year_month'].astype(str)
 	df['年'] = df[column].dt.year
-	df['年'] = df['年'].astype(int)
+	df['年'] = df['年'].astype(str)
 	df['月'] = df[column].dt.month
-	df['月'] = df['月'].astype(int)
+	df['月'] = df['月'].astype(str)
 def on_button_click_1():
     st.session_state['button_clicked_1'] = not st.session_state['button_clicked_1']
 
