@@ -29,9 +29,9 @@ def datetime(df, column):
 	df['year_month'] = df[column].dt.to_period('M')
 
 	df['年'] = df[column].dt.year
-	df['年'] = df['年'].apply(lambda x: int(x))
+	df['年'] = df['年'].astype(int)
 	df['月'] = df[column].dt.month
-	df['月'] = df['月'].apply(lambda x: int(x))
+	df['月'] = df['月'].astype(int)
 def on_button_click_1():
     st.session_state['button_clicked_1'] = not st.session_state['button_clicked_1']
 
