@@ -52,7 +52,7 @@ datetime(df4, '伝票日付')
 datetime(df5, '伝票日付')
 
 st.write(df)
-st.write(df.info())
+st.write(df.groupby('年').sum()[['正味重量_明細']])
 
 # df_year = df.groupby(['年', '新工場稼働後']).sum()[['正味重量_明細', '合計金額']]
 # df2_year = df2.groupby('年').sum()
