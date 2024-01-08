@@ -165,23 +165,25 @@ df_concat_type.fillna(0, inplace=True)
 col4, col5 = st.columns(2)
 
 with col4:
-	st.write(f'商品カテゴリーとSOLVEST向けの荷物の相関関係')
-	st.write(f'単位: {unit}')
-	fig = sns.pairplot(df_concat[['混合廃棄物','廃ﾌﾟﾗｽﾁｯｸ類', value]], plot_kws={'alpha': 0.3})
-	plt.title(f'単位: {unit}')
-	st.pyplot(fig)
-	st.write('相関係数')
-	st.write(df_concat.corr().loc[value].sort_values(ascending=False)[:-1])
+	ex4 = st.expander(f'商品カテゴリーとSOLVEST向けの荷物の相関関係')
+	with ex4:
+		st.write(f'単位: {unit}')
+		fig = sns.pairplot(df_concat[['混合廃棄物','廃ﾌﾟﾗｽﾁｯｸ類', value]], plot_kws={'alpha': 0.3})
+		plt.title(f'単位: {unit}')
+		st.pyplot(fig)
+		st.write('相関係数')
+		st.write(df_concat.corr().loc[value].sort_values(ascending=False)[:-1])
 
 with col5:
-	st.write(f'混合廃棄物カテゴリーとSOLVEST向け荷物の相関関係')
-	st.write(f'単位: {unit}')
-	fig, ax = plt.subplots()
-	sns.scatterplot(data=df_concat_type, x='混合廃棄物Ａ', y='混合廃棄物Ｂ', hue=value, size=value, ax=ax)
-	plt.legend()
-	st.pyplot(fig)
-	st.write('相関係数')
-	st.write(df_concat_type.corr().loc[value].sort_values(ascending=False)[:10])
+	ex5 = st.expander(f'混合廃棄物カテゴリーとSOLVEST向け荷物の相関関係')
+	with ex5:
+		st.write(f'単位: {unit}')
+		fig, ax = plt.subplots()
+		sns.scatterplot(data=df_concat_type, x='混合廃棄物Ａ', y='混合廃棄物Ｂ', hue=value, size=value, ax=ax)
+		plt.legend()
+		st.pyplot(fig)
+		st.write('相関係数')
+		st.write(df_concat_type.corr().loc[value].sort_values(ascending=False)[:10])
 
 st.markdown('---')
 customer_purchase_counts = st.session_state.df_revenue.groupby(['年', '得意先']).size().reset_index(name='購入回数')
@@ -189,32 +191,36 @@ customer_purchase_counts = st.session_state.df_revenue.groupby(['年', '得意�
 # 商品ごとの購入回数の計算
 product_purchase_counts = st.session_state.df_revenue.groupby(['年', '商品']).size().reset_index(name='購入回数')
 
-st.subheader('得意先ごとの購入回数のヒストグラムと累積確率分布')
-col6, col7 = st.columns(2)
-with col6:
-	plot_histogram(customer_purchase_counts, '得意先', '得意先ごとの購入回数のヒストグラム', lim=800)
-	st.write('年度別')
-	st.write(customer_purchase_counts)
-with col7:
-	plot_cumulative_distribution(customer_purchase_counts, '得意先', '得意先ごとの購入回数の累積確率分布', lim=1000)
-	custom_sum = customer_purchase_counts.groupby('得意先').sum()[['購入回数']]
-	st.write('3年合計')
-	st.write(custom_sum)
+ex6 = st.expander('得意先ごとの購入回数')
+with ex6:
+	st.subheader('得意先ごとの購入回数のヒストグラムと累積確率分布')
+
+	col6, col7 = st.columns(2)
+	with col6:
+		plot_histogram(customer_purchase_counts, '得意先', '得意先ごとの購入回数のヒストグラム', lim=800)
+		st.write('年度別')
+		st.write(customer_purchase_counts)
+	with col7:
+		plot_cumulative_distribution(customer_purchase_counts, '得意先', '得意先ごとの購入回数の累積確率分布', lim=1000)
+		custom_sum = customer_purchase_counts.groupby('得意先').sum()[['購入回数']]
+		st.write('3年合計')
+		st.write(custom_sum)
 
 st.markdown('---')
+ex7 = st.expander('商品ごとの購入回数')
+with ex7:
+	st.subheader('商品ごとの購入回数のヒストグラムと累積確率分布')
+	col8, col9 = st.columns(2)
 
-st.subheader('商品ごとの購入回数のヒストグラムと累積確率分布')
-col8, col9 = st.columns(2)
-
-with col8:
-	plot_histogram(product_purchase_counts, '商品', '商品ごとの購入回数のヒストグラム', lim=900)
-	st.write('年度別')
-	st.write(product_purchase_counts)
-with col9:
-	plot_cumulative_distribution(product_purchase_counts, '商品', '商品ごとの購入回数の累積確率分布', lim=10000)
-	product_sum = product_purchase_counts.groupby('商品').sum()[['購入回数']]
-	st.write('3年合計')
-	st.write(product_sum)
+	with col8:
+		plot_histogram(product_purchase_counts, '商品', '商品ごとの購入回数のヒストグラム', lim=900)
+		st.write('年度別')
+		st.write(product_purchase_counts)
+	with col9:
+		plot_cumulative_distribution(product_purchase_counts, '商品', '商品ごとの購入回数の累積確率分布', lim=10000)
+		product_sum = product_purchase_counts.groupby('商品').sum()[['購入回数']]
+		st.write('3年合計')
+		st.write(product_sum)
 
 
 
