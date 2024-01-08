@@ -168,9 +168,11 @@ with col4:
 	ex4 = st.expander(f'商品カテゴリーとSOLVEST向けの荷物の相関関係')
 	with ex4:
 		st.write(f'単位: {unit}')
-		fig = sns.pairplot(df_concat[['混合廃棄物','廃ﾌﾟﾗｽﾁｯｸ類', value]], plot_kws={'alpha': 0.3})
-		plt.title(f'単位: {unit}')
+		fig, ax = plt.subplots()
+		sns.scatterplot(data=df_concat_type, x='混合廃棄物', y='廃ﾌﾟﾗｽﾁｯｸ類', hue=value, size=value, ax=ax)
+		plt.legend()
 		st.pyplot(fig)
+		
 		st.write('相関係数')
 		st.write(df_concat.corr().loc[value].sort_values(ascending=False)[:-1])
 
