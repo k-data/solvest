@@ -1,12 +1,12 @@
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
-import time
-from matplotlib.font_manager import FontProperties
+import japanize_matplotlib
 import seaborn as sns
 import pydeck as pdk
 import plotly.express as px 
 import streamlit as st
+st.set_page_config(layout="wide")
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import sqlite3
@@ -17,546 +17,235 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
+from sklearn.tree import DecisionTreeRegressor, plot_tree
+import base64
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import randint as sp_randint, uniform
 
 
-conn = sqlite3.connect('database.db')
-c = conn.cursor()
+def datetime(df, column):
+	df[column] = pd.to_datetime(df[column])
+	df['year_month'] = df[column].dt.to_period('M')
+
+	df['年'] = df[column].dt.year
+	df['月'] = df[column].dt.month
+def on_button_click_1():
+    st.session_state['button_clicked_1'] = not st.session_state['button_clicked_1']
+
+# ボタン2が押されたときの動作
+def on_button_click_2():
+    st.session_state['button_clicked_2'] = not st.session_state['button_clicked_2']
+
+df = pd.read_csv('streamlit/data/cost_all.csv')
+df2 = pd.read_csv('streamlit/data/搬入集計.csv')
+df3 = pd.read_csv('streamlit/data/2021_all.csv')
+df4 = pd.read_csv('streamlit/data/2022_all.csv')
+df5 = pd.read_csv('streamlit/data/2023_all.csv')
+
+datetime(df, '伝票日付')
+datetime(df2, '日付')
+datetime(df3, '伝票日付')
+datetime(df4, '伝票日付')
+datetime(df5, '伝票日付')
+
+
+df_year = df.groupby(['年', '新工場稼働後']).sum()[['正味重量_明細', '合計金額']]
+df2_year = df2.groupby('年').sum()
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+	st.write('年別工場実績')
+	st.write(df2_year[['台数', '数量', '工場売上', '工場粗利', '工場仕入']])
+	df2_year = df2_year[['台数', '数量', '工場売上', '工場粗利', '工場仕入']]
+with col2:
+	st.write('年別SOLVEST向け実績')
+	st.write(df_year)
+
+with col3:
+	df_sample = pd.DataFrame(columns=['数量比(%)', '金額比(%)'], index=[2021, 2022, 2023])
+	df_year_type = df_year.reset_index()
+	df_year_type = df_year_type[df_year_type['新工場稼働後'] == 'SOLVEST']
+	kg_2021 = df_year_type[df_year_type['年'] == 2021]['正味重量_明細'] / df2_year.loc[2021, '数量']
+	kg_2021 *= 100
+	kg_2021 = np.array(kg_2021)
+	kg_2022 = df_year_type[df_year_type['年'] == 2022]['正味重量_明細'] / df2_year.loc[2022, '数量']
+	kg_2022 *= 100
+	kg_2022 = np.array(kg_2022)
+	kg_2023 = df_year_type[df_year_type['年'] == 2023]['正味重量_明細'] / df2_year.loc[2023, '数量']
+	kg_2023 *= 100
+	kg_2023 = np.array(kg_2023)
+	kg_all = df_year_type['正味重量_明細'].sum() / df2_year['数量'].sum()
+	kg_all *= 100
+	kg_all = np.array(kg_all)
+	cost_2021 = df_year_type[df_year_type['年'] == 2021]['合計金額'] / df2_year.loc[2021, '工場仕入']
+	cost_2021 *= 100
+	cost_2021 = np.array(cost_2021)
+	cost_2022 = df_year_type[df_year_type['年'] == 2022]['合計金額'] / df2_year.loc[2022, '工場仕入']
+	cost_2022 *= 100
+	cost_2022 = np.array(cost_2022)
+	cost_2023 = df_year_type[df_year_type['年'] == 2023]['合計金額'] / df2_year.loc[2023, '工場仕入']
+	cost_2023 *= 100
+	cost_2023 = np.array(cost_2023)
+	cost_all = df_year_type['合計金額'].sum() / df2_year['工場仕入'].sum()
+	cost_all *= 100
+	cost_all = np.array(cost_all)
+	df_sample.loc[2021, '数量比(%)'] = np.round(kg_2021, 2)
+	df_sample.loc[2022, '数量比(%)'] = np.round(kg_2022, 2)
+	df_sample.loc[2023, '数量比(%)'] = np.round(kg_2023, 2)
+	df_sample.loc[2021, '金額比(%)'] = np.round(cost_2021, 2)
+	df_sample.loc[2022, '金額比(%)'] = np.round(cost_2022, 2)
+	df_sample.loc[2023, '金額比(%)'] = np.round(cost_2023, 2)
+
+	st.write('SOLVEST 比率')
+	st.write(df_sample)
+	st.write(f'全体数量比:{np.round(kg_all, 2)}%, 全体金額比: {np.round(cost_all, 2)}%')
+
+
+expander = st.expander('全体比較')
+with expander:
+	options = ["金額", "数量"]
+	selected_option = st.radio("どちらか選択してください", options=options)
+	if selected_option == options[0]:
+		df_plot = df.copy()
+		
+		df_plot = df_plot.groupby(['year_month', '新工場稼働後']).sum()[['正味重量_明細', '合計金額']]
+		df_plot.reset_index(inplace=True)
 
 
 
-def make_hashes(password):
-	return hashlib.sha256(str.encode(password)).hexdigest()
 
-def check_hashes(password, hashed_text):
-	if make_hashes(password) == hashed_text:
-		return hashed_text
-	return False
+		# '新工場稼働後' 列をピボットし、新しいデータフレームを作成
+		df_pivot = df_plot.pivot(index='year_month', columns='新工場稼働後', values='合計金額')
+		df_pivot_mean = df_pivot['SOLVEST'].rolling(window=6).mean()
+		df_pivot_mean = pd.DataFrame(df_pivot_mean, index=df_pivot.index)
+		df_pivot_mean.dropna(inplace=True)
+		x2 = np.arange(5,len(df_pivot))
+		fig, ax = plt.subplots()
 
-def create_user():
-	c.execute('CREATE TABLE IF NOT EXISTS userstable(username TEXT,password TEXT)')
+		# 積み上げ棒グラフの作成
+		df_pivot.plot(kind='bar', stacked=True, ax=ax)
+		df2['工場仕入'].plot(kind='line', color='green', style='--', label='工場仕入')
+		plt.plot(x2, df_pivot_mean['SOLVEST'], 'r-', label='SOLVEST: 6カ月移動平均')
+		ax.set_title('合計金額の比較', fontsize=16)
+		ax.set_xlabel('日付', fontsize=12)
+		ax.set_ylabel('合計金額', fontsize=12)
 
-def add_user(username,password):
-	c.execute('INSERT INTO userstable(username,password) VALUES (?,?)',(username,password))
-	conn.commit()
+		# 軸のフォーマット調整
+		ax.tick_params(axis='x', rotation=90)
+		ax.tick_params(axis='y', labelsize=10)
 
-def login_user(username,password):
-	c.execute('SELECT * FROM userstable WHERE username =? AND password = ?',(username,password))
-	data = c.fetchall()
-	return data
+		# グリッド線のスタイル調整
+		ax.grid(True, linestyle='--', linewidth=0.5, color='grey', alpha=0.5)
 
-def create_data():
-    
-    c.execute('CREATE TABLE IF NOT EXISTS file1(id INTEGER, day TEXT, custmers TEXT, product TEXT, kg INTEGER, price INTEGER, revenue INTEGER)')
+		# 凡例の位置調整
+		ax.legend(loc='upper right')
 
-
-def add_data():
-
-    for idx, row in df1.iterrows():
-        c.execute('INSERT INTO file1 VALUES(?,?,?,?,?,?,?)',(row))
-    conn.commit()
-
-
-value_kongou = ['混合廃棄物（フライト）','混合廃棄物（がれき類）','混合廃棄物Ａ　','混合廃棄物Ａ（Retail）','混合廃棄物Ａ（Marｌceting）','混合廃棄物Ａ（MV）','混合廃棄物Ａ（IT）','混合廃棄物Ａ（EC）', '混合廃棄物Ａ（CS）','混合廃棄物（金属くず・廃プラ・ガラ陶）','混合廃棄物（金属くず・廃プラ）','混合廃棄物（木くず・廃プラ）','ｶﾞﾗｽ・ｺﾝｸﾘｰﾄ・陶磁器くず','混合廃棄物\u3000（フライト）','混合廃棄物（木くず・廃プラ）','混合廃棄物（ボード混入）','混合廃棄物（処理困難物）', '混合廃棄物','混合廃棄物Ａ', '混合廃棄物Ｂ', '混合廃棄物Ｃ', '混合廃棄物（安定型）', '混合廃棄物 （ビン・缶・ペットボトル）', '混合廃棄物（ビン・缶・ペットボトル）']
-value_shoukyaku = ['混合廃棄物（焼却物）.','混合廃棄物（焼却物）  ','ビデオテープ','混合廃棄物（布団）','混合廃棄物（靴）','混合廃棄物（反物）','混合廃棄物（臭気物）','混合廃棄物（ソファー）', '混合廃棄物（焼却物）','混合廃棄物（壁紙）']
-value_keiryou = ['軽量物系　Ｂ（グラスウール）  ','軽量物系　Ａ（スタイロフォーム） ','発泡スチロール','軽量物系　Ｂ（スタイロフォーム）','軽量物系\u3000Ａ（岩綿吸音板）','軽量物系\u3000Ａ（スタイロフォーム）  ','軽量物系\u3000Ｂ（充填材）','軽量物系\u3000Ｂ（ＦＲＰ）','軽量物系\u3000Ａ（発泡スチロール）', '軽量物系\u3000Ｂ（グラスウール）', '軽量物系\u3000Ａ（ネオマフォーム）', '軽量物系\u3000Ａ（スタイロフォーム）','軽量物系\u3000Ａ（ウレタン）', '軽量物系\u3000Ａ（スポンジ）']
-value_kikuzu = ['伐根材','木くず','木くずA','生木']
-value_borad = ['石膏ボード　Ｃ ','石膏ボード　Ｄ  ','石膏ボード　Ａ ','パ－テ－ションボ－ド','石膏ボード\u3000Ｃ','石膏ボード\u3000Ａ','石膏ボード\u3000Ｄ','石膏ボード\u3000Ｂ']
-value_haipura = ['廃プラスチック','廃プラスチック類（箱入りシール）','廃プラスチック類','廃プラスチック類','廃プラスチック類（箱入りシール）']
-value_kinzoku = ['選別  ','鉄千地','ＧＤ\u3000','ＧＣ\u3000軽鉄・スチ－ル類', '室外機','室内機','選別','金庫','金属くず','選別\u3000','選別（キャビネット）']
+		# Streamlitへのグラフの表示
+		st.pyplot(fig)
+	else: 
+		df_plot = df.copy()
+		
+		df_plot = df_plot.groupby(['year_month', '新工場稼働後']).sum()[['正味重量_明細', '合計金額']]
+		df_plot.reset_index(inplace=True)
 
 
 
-menu = ["ログイン","サインアップ"]
 
-choice = st.sidebar.selectbox("メニュー",menu)
+		# '新工場稼働後' 列をピボットし、新しいデータフレームを作成
+		df_pivot = df_plot.pivot(index='year_month', columns='新工場稼働後', values='正味重量_明細')
+		df_pivot_mean = df_pivot['SOLVEST'].rolling(window=6).mean()
+		df_pivot_mean = pd.DataFrame(df_pivot_mean, index=df_pivot.index)
+		df_pivot_mean.dropna(inplace=True)
+		x2 = np.arange(5,len(df_pivot))
+		fig, ax = plt.subplots()
+
+		# 積み上げ棒グラフの作成
+		df_pivot.plot(kind='bar', stacked=True, ax=ax)
+		df2['数量'].plot(kind='line', color='green', label='搬入数量')
+		plt.plot(x2, df_pivot_mean['SOLVEST'], color='red', label='SOLVEST: 6カ月移動平均')
+		ax.set_title('出来高重量の比較', fontsize=16)
+		ax.set_xlabel('日付', fontsize=12)
+		ax.set_ylabel('重量', fontsize=12)
+
+		# 軸のフォーマット調整
+		ax.tick_params(axis='x', rotation=90)
+		ax.tick_params(axis='y', labelsize=10)
+
+		# グリッド線のスタイル調整
+		ax.grid(True, linestyle='--', linewidth=0.5, color='grey', alpha=0.5)
+
+		# 凡例の位置調整
+		ax.legend(loc='upper right')
+
+		# Streamlitへのグラフの表示
+		st.pyplot(fig)
 
 
-if choice == "サインアップ":
-	st.subheader("新しいアカウントを作成します")
-	new_user = st.text_input("ユーザー名を入力してください")
-	new_password = st.text_input("パスワードを入力してください",type='password')
 
-	if st.button("サインアップ"):
-		create_user()
-		add_user(new_user,make_hashes(new_password))
-		st.success("アカウントの作成に成功しました")
-		st.info("ログイン画面からログインしてください")
 
-elif choice == "ログイン":
-	st.info("please_login")
 
-	username = st.sidebar.text_input("ユーザー名を入力してください")
-	password = st.sidebar.text_input("パスワードを入力してください",type='password')
-	if st.sidebar.checkbox("ログイン"):
-		create_user()
-		hashed_pswd = make_hashes(password)
 
-		result = login_user(username,check_hashes(password,hashed_pswd))
-		if result:
 
-			st.success("{}さんでログインしました".format(username))
 
-		else:
-			st.warning("ユーザー名かパスワードが間違っています")
 
-		if result :
-			st.write('データをアップロードしてください')
-			@st.cache(allow_output_mutation=True)
-			def read_file(file):
-				df=pd.read_csv(file,engine="python")
-				# df['伝票日付'] = df['伝票日付'].apply(lambda x: x.replace('/', '-'))
-				
-				return df
+
+
+expander2 = st.expander('SOLVEST向け構成比較')
+with expander2:
+	df_solvest = df[df['新工場稼働後'] == 'SOLVEST']
+	df_cost = df_solvest.groupby('年').sum()[['金額', '運搬費', '合計金額']]
+	col1, col2 = st.columns(2)
+	if 'button_clicked_1' not in st.session_state:
+		st.session_state['button_clicked_1'] = False
+
+	if 'button_clicked_2' not in st.session_state:
+		st.session_state['button_clicked_2'] = False
+
+# ボタン1が押されたときの動作
+
+
+	# 最初の列にデータフレームを表示
+	with col1:
+		st.write("データフレーム:")
+		st.write(df_cost)
 			
-			file_1 = st.sidebar.file_uploader('ファイルアップロード1', type='csv')
-			file_2 = st.sidebar.file_uploader('ファイルアップロード2', type='csv')
-			file_3 = st.sidebar.file_uploader('ファイルアップロード3', type='csv')
-			file_list = ['file_1', 'file_2','file_3']
-			chose_list = st.sidebar.select_slider('ファイルを選択してください', file_list)
+	# 二番目の列にデータフレームの記述統計を表示
+	with col2:
+		st.write("df_cost の記述統計:")
+		st.write(df_cost.describe())
+	
+	button_r_1 = st.button('plot_Button', on_click=on_button_click_1)
+	if st.session_state['button_clicked_1']:
+		year_select = st.radio('年を選択してください', (2021, 2022, 2023))
 
-			if chose_list == file_list[0]:
-				if file_1 != None:
-					df1 = read_file(file_1)
-					
-					df1 = df1[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
-					df1 = df1.dropna()
-					
-					create_data()
-					add_data()
+		col3, col4 = st.columns(2)
 
-					custmers = [i for i in df1['得意先'].unique()] 
-					df1['year'] = df1['伝票日付'].apply(lambda x: int(x.split('/')[0]))
-					df1['month'] = df1['伝票日付'].apply(lambda x: int(x.split('/')[1]))
-					df1['day'] = df1['伝票日付'].apply(lambda x: int(x.split('/')[2].split()[0]))
+		with col3:
+			df_cost_year = pd.DataFrame(df_cost.loc[year_select, ['金額', '運搬費']])
+			st.write(f'{year_select}年 SOLVEST向け金額構成比')
+			labels = ['金額', '運搬費']
+			values = df_cost_year[year_select]
+			fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+			st.plotly_chart(fig)
 
-
-					button = st.checkbox('show')
-
-					if button == True:
-						year = df1['year'].unique()
-						month = df1['month'].unique()
-						kg_all = df1['正味重量_明細'].sum()
-						kg_mean = kg_all / len(df1['day'].unique())
-						st.write(f'{year}年 {month}月')
-						st.write(df1)
-						st.write(f'顧客数:{len(custmers)} 搬入量:{kg_all}kg  日量平均:{kg_mean:.2f}kg') 
-						df1_bar = df1.groupby('day').sum()
-						st.bar_chart(df1_bar[['正味重量_明細','金額']])
-						colum_list = ['正味重量_明細', '金額']
-						sel_col = st.select_slider('選択してください', colum_list)
-						df1_all = df1.groupby('得意先').sum()
-						df1_all['得意先'] = df1_all.index
-						df1_all = df1_all.loc[:,['正味重量_明細','金額']]
-						st.write(f'{sel_col}上位順')
-						
-						df1_all = df1_all.sort_values(sel_col, ascending=False)
-						st.area_chart(df1_all[sel_col].values)
-						with st.container():
-							col1, col2 = st.columns([1, 1])
-						with col1:
-							st.write(df1_all)
-						with col2:
-							df1_v = df1.groupby('集計区分').sum()
-							st.bar_chart(df1_v[['正味重量_明細']])
-						value_list = []
-						
-						for i in df1['商品'].values:
-							if i in value_kongou:
-								value_list.append('混合系')
-							elif i in value_keiryou:
-								value_list.append('軽量系')
-							elif i in value_shoukyaku:
-								value_list.append('焼却系')
-							elif i in value_kikuzu:
-								value_list.append('木くず')
-							elif i in value_kinzoku:
-								value_list.append('金属系')
-							elif i in value_borad:
-								value_list.append('石膏ボード系')
-							elif i in value_haipura:
-								value_list.append('廃プラスチック系')
-							else:
-								value_list.append('その他')
-						df1['分類'] = value_list
-
-						type_list = [i for i in df1['集計区分'].unique()]
-						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
-						df1 = df1[df1['集計区分'] == select_type]
-						select_df = df1.groupby('得意先').sum()
-						select_df = select_df.sort_values(sel_col, ascending=False)
-						type_df = df1.groupby('分類').sum()
-						type_df['分類'] = type_df.index
-						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
-						st.plotly_chart(fig)
-						product = st.select_slider('選択してください', type_df.index)
-						product_df = df1[df1['分類'] == product]
-						product_df = product_df.groupby('商品').sum()
-						st.bar_chart(product_df[sel_col])
-						st.write(f'{select_type} 上位順')
-						st.write(select_df[colum_list])
-						custmer = st.text_input('顧客名を入力してください')
-						custm_list = []
-						for i, v in enumerate(custmers):
-							if custmer in v:
-								custm_list.append(v)		
-						chose = st.selectbox('顧客を選択してください ↓',custm_list)
-						df1 = df1[df1['得意先'] == chose]
-						month_list = [i for i in df1['month'].unique()]
-							
-						df1_valance = df1.groupby('集計区分').sum()
-						df1_valance['集計区分'] = df1_valance.index
-						df1_sum = df1.groupby('商品').sum()
-						df1_sum['商品'] = df1_sum.index
-						df1_day = df1.groupby('day').sum()
-						df1_day['day'] = df1_day.index
-						b = st.checkbox('data')
-						if b == True:
-							if sel_col == colum_list[0]:
-								product_list = [i for i in df1_sum['商品'].unique()]
-								options = st.sidebar.multiselect('商品を選択してください',product_list, product_list)
-								df1_sum = df1_sum.loc[options]
-								
-								value = '正味重量_明細'
-								st.write(df1_sum.loc[:,['正味重量_明細','金額']])
-								st.bar_chart(df1_sum.loc[:,'正味重量_明細'])
-								fig = px.pie(df1_sum, values=value, names='商品')
-								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
-								st.plotly_chart(fig)
-								data_check = st.checkbox('check')
-								if data_check == True:
-									if len(month_list) == 1:
-										st.write(f'{month_list[0]}月 日量推移')
-										st.bar_chart(df1_day[sel_col])
-										sum_kg = df1_day['正味重量_明細'].sum()
-										st.write(f'{month_list[0]}月 合計{sum_kg}kg')
-									else:
-										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-										df1 = df1[df1['month'] == choice_month]
-										df1_day = df1.groupby('day').sum()
-										st.write(f'{choice_month}月 日量推移')
-										st.bar_chart(df1_day[sel_col])
-										sum_kg = df1_day[value].sum()
-										st.write(f'{choice_month}月 合計{sum_kg}kg')
-							
-							else:
-								value = '金額'
-								if len(df1_sum['商品']) < 15:
-									st.write(f'{chose}: データ全体 :商品構成比 {colum_list[1]}')	
-									fig = px.pie(df1_sum, values=value, names='商品')
-									st.plotly_chart(fig)
-								else:
-									st.bar_chart(df1_sum.loc[:,value])
-
-								data_check = st.checkbox('check')
-								if data_check == True:
-									if len(month_list) == 1:
-										st.write(f'{month_list[0]}月 売上金額推移')
-										st.bar_chart(df1_day[sel_col])
-										sum_kg = df1_day[value].sum()
-										st.write(f'{month_list[0]}月 合計{sum_kg}円')
-									else:
-										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-										df1 = df1[df1['month'] == choice_month]
-										df1_day = df1.groupby('day').sum()
-										st.write(f'{choice_month}月 売上推移')
-										st.bar_chart(df1_day[sel_col])
-										sum_kg = df1_day[value].sum()
-										st.write(f'{choice_month}月 合計{sum_kg}円')
+		with col4:
+			options = ['運搬費', '金額']
+			select_value = st.radio('選択してください', options)
+			df_solvest_year = df_solvest[df_solvest['年'] == year_select]
+			df_solvest_year = df_solvest_year.groupby('種類').sum()[['正味重量_明細', '運搬費', '金額','合計金額']]
+			df_solvest_year.reset_index(inplace=True)
+			# outer_labels = ['運搬費', '']
+			labels = df_solvest_year['種類']
+			values = df_solvest_year[select_value]
+			fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+			st.plotly_chart(fig)
 
 
 
-			elif chose_list == file_list[1]:
-				if file_2 != None:
-					df2 = read_file(file_2)
-					df2 = df2[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
-					df2 = df2.dropna()
-					
-					
-					custmers = [i for i in df2['得意先'].unique()] 
-
-					df2['year'] = df2['伝票日付'].apply(lambda x: int(x.split('/')[0]))	
-					df2['month'] = df2['伝票日付'].apply(lambda x: int(x.split('/')[1]))
-					df2['day'] = df2['伝票日付'].apply(lambda x: int(x.split('/')[2]))
 
 
-					button = st.checkbox('show')
 
-					if button == True:
-						year = df2['year'].unique()
-						month = df2['month'].unique()
-						kg_all = df2['正味重量_明細'].sum()
-						kg_mean = kg_all / len(df2['day'].unique())
-						st.write(f'{year}年 {month}月')
-						st.write(f'顧客数:{len(custmers)} 搬入量:{kg_all}kg  日量平均:{kg_mean:.2f}kg') 
-						df2_bar = df2.groupby('day').sum()
-						st.bar_chart(df2_bar[['正味重量_明細','金額']])
-						colum_list = ['正味重量_明細', '金額']
-						sel_col = st.select_slider('選択してください', colum_list)
-						df2_all = df2.groupby('得意先').sum()
-						df2_all['得意先'] = df2_all.index
-						df2_all = df2_all.loc[:,['正味重量_明細','金額']]
-						st.write(f'{sel_col}上位順')
-						df2_all = df2_all.sort_values(sel_col, ascending=False)
-						st.area_chart(df2_all[sel_col].values)
-						with st.container():
-							col1, col2 = st.columns([1, 1])
-						with col1:
-							st.write(df2_all)
-						with col2:
-							df2_v = df2.groupby('集計区分').sum()
-							st.bar_chart(df2_v[['正味重量_明細']])
-						value_list = []
-						
-						for i in df2['商品'].values:
-							if i in value_kongou:
-								value_list.append('混合系')
-							elif i in value_keiryou:
-								value_list.append('軽量系')
-							elif i in value_shoukyaku:
-								value_list.append('焼却系')
-							elif i in value_kikuzu:
-								value_list.append('木くず')
-							elif i in value_kinzoku:
-								value_list.append('金属系')
-							elif i in value_borad:
-								value_list.append('石膏ボード系')
-							elif i in value_haipura:
-								value_list.append('廃プラスチック系')
-							else:
-								value_list.append('その他')
-						df2['分類'] = value_list
-
-						type_list = [i for i in df2['集計区分'].unique()]
-						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
-						df2 = df2[df2['集計区分'] == select_type]
-						select_df = df2.groupby('得意先').sum()
-						select_df = select_df.sort_values(sel_col, ascending=False)
-						type_df = df2.groupby('分類').sum()
-						type_df['分類'] = type_df.index
-						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
-						st.plotly_chart(fig)
-						product = st.select_slider('選択してください', type_df.index)
-						product_df = df2[df2['分類'] == product]
-						product_df = product_df.groupby('商品').sum()
-						st.bar_chart(product_df[sel_col])
-						st.write(f'{select_type} 上位順')
-						st.write(select_df[colum_list])
-						
-						custmer = st.text_input('顧客名を入力してください')
-						custm_list = []
-						for i, v in enumerate(custmers):
-							if custmer in v:
-								custm_list.append(v)		
-						chose = st.selectbox('顧客を選択してください ↓',custm_list)
-						df2 = df2[df2['得意先'] == chose]
-						month_list = [i for i in df2['month'].unique()]
-							
-						df2_valance = df2.groupby('集計区分').sum()
-						df2_valance['集計区分'] = df2_valance.index
-						df2_sum = df2.groupby('商品').sum()
-						df2_sum['商品'] = df2_sum.index
-						df2_day = df2.groupby('day').sum()
-						df2_day['day'] = df2_day.index
-						b = st.checkbox('data')
-						if b == True:
-							if sel_col == colum_list[0]:
-								product_list = [i for i in df2_sum['商品'].unique()]
-								options = st.sidebar.multiselect('商品を選択してください',product_list, product_list)
-								df2_sum = df2_sum.loc[options]
-								
-								value = '正味重量_明細'
-								st.write(df2_sum.loc[:,['正味重量_明細','金額']])
-								st.bar_chart(df2_sum.loc[:,'正味重量_明細'])
-								fig = px.pie(df2_sum, values=value, names='商品')
-								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
-								st.plotly_chart(fig)
-								data_check = st.checkbox('check')
-								if data_check == True:
-									if len(month_list) == 1:
-										st.write(f'{month_list[0]}月 日量推移')
-										st.bar_chart(df2_day[sel_col])
-										sum_kg = df2_day[value].sum()
-										st.write(f'{month_list[0]}月 合計{sum_kg}kg')
-									else:
-										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-										df2 = df2[df2['month'] == choice_month]
-										df2_day = df2.groupby('day').sum()
-										st.write(f'{choice_month}月 日量推移')
-										st.bar_chart(df2_day[sel_col])
-										sum_kg = df2_day[value].sum()
-										st.write(f'{choice_month}月 合計{sum_kg}kg')
-							
-							else:
-								value = '金額'
-								if len(df2_sum['商品']) < 15:
-									st.write(f'{chose}: データ全体 :商品構成比 {colum_list[1]}')	
-									fig = px.pie(df2_sum, values=value, names='商品')
-									st.plotly_chart(fig)
-								else:
-									st.bar_chart(df2_sum.loc[:,value])
-
-								data_check = st.checkbox('check')
-								if data_check == True:
-									if len(month_list) == 1:
-										st.write(f'{month_list[0]}月 売上金額推移')
-										st.bar_chart(df2_day[sel_col])
-										sum_kg = df2_day[value].sum()
-										st.write(f'{month_list[0]}月 合計{sum_kg}円')
-									else:
-										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-										df2 = df2[df2['month'] == choice_month]
-										df2_day = df2.groupby('day').sum()
-										st.write(f'{choice_month}月 売上推移')
-										st.bar_chart(df2_day[sel_col])
-										sum_kg = df2_day[value].sum()
-										st.write(f'{choice_month}月 合計{sum_kg}円')
-						
-			else:
-				if file_3 != None:
-					df3 = read_file(file_3)
-					
-					
-					df3 = df3[['伝票番号','伝票日付','得意先','商品','集計区分','正味重量_明細','金額']]
-					df3 = df3.dropna()
-
-					custmers = [i for i in df3['得意先'].unique()] 
-					df3['year'] = df3['伝票日付'].apply(lambda x: int(x.split('/')[0]))	
-					df3['month'] = df3['伝票日付'].apply(lambda x: int(x.split('/')[1]))
-					df3['day'] = df3['伝票日付'].apply(lambda x: int(x.split('/')[2]))
-
-
-					button = st.checkbox('show')
-
-					if button == True:
-						year = df3['year'].unique()
-						month = df3['month'].unique()
-						kg_all = df3['正味重量_明細'].sum()
-						kg_mean = kg_all / len(df3['day'].unique())
-						st.write(f'{year}年 {month}月')
-						st.write(f'顧客数:{len(custmers)} 搬入量:{kg_all}kg  日量平均:{kg_mean:.2f}kg') 
-						df3_bar = df3.groupby('day').sum()
-						st.bar_chart(df3_bar[['正味重量_明細','金額']])
-						colum_list = ['正味重量_明細', '金額']
-						sel_col = st.select_slider('選択してください', colum_list)
-						df3_all = df3.groupby('得意先').sum()
-						df3_all['得意先'] = df3_all.index
-						df3_all = df3_all.loc[:,['正味重量_明細','金額']]
-						st.write(f'{sel_col}上位順')
-						df3_all = df3_all.sort_values(sel_col, ascending=False)
-						st.area_chart(df3_all[sel_col].values)
-						with st.container():
-							col1, col2 = st.columns([1, 1])
-						with col1:
-							st.write(df3_all)
-						with col2:
-							df3_v = df3.groupby('集計区分').sum()
-							st.bar_chart(df3_v[['正味重量_明細']])
-						value_list = []
-						
-						for i in df3['商品'].values:
-							if i in value_kongou:
-								value_list.append('混合系')
-							elif i in value_keiryou:
-								value_list.append('軽量系')
-							elif i in value_shoukyaku:
-								value_list.append('焼却系')
-							elif i in value_kikuzu:
-								value_list.append('木くず')
-							elif i in value_kinzoku:
-								value_list.append('金属系')
-							elif i in value_borad:
-								value_list.append('石膏ボード系')
-							elif i in value_haipura:
-								value_list.append('廃プラスチック系')
-							else:
-								value_list.append('その他')
-						df3['分類'] = value_list
-
-						type_list = [i for i in df3['集計区分'].unique()]
-						select_type = st.sidebar.select_slider('種類を選択してください', type_list)
-						df3 = df3[df3['集計区分'] == select_type]
-						select_df = df3.groupby('得意先').sum()
-						select_df = select_df.sort_values(sel_col, ascending=False)
-						type_df = df3.groupby('分類').sum()
-						type_df['分類'] = type_df.index
-						fig = px.pie(type_df, values=sel_col, names='分類',title=f'{select_type}:{sel_col}構成比')
-						st.plotly_chart(fig)
-						product = st.select_slider('選択してください', type_df.index)
-						product_df = df3[df3['分類'] == product]
-						product_df = product_df.groupby('商品').sum()
-						st.bar_chart(product_df[sel_col])
-						st.write(f'{select_type} 上位順')
-						st.write(select_df[colum_list])
-						custmer = st.text_input('顧客名を入力してください')
-						custm_list = []
-						for i, v in enumerate(custmers):
-							if custmer in v:
-								custm_list.append(v)		
-						chose = st.selectbox('顧客を選択してください ↓',custm_list)
-						df3 = df3[df3['得意先'] == chose]
-						month_list = [i for i in df3['month'].unique()]
-							
-						df3_valance = df3.groupby('集計区分').sum()
-						df3_valance['集計区分'] = df3_valance.index
-						df3_sum = df3.groupby('商品').sum()
-						df3_sum['商品'] = df3_sum.index
-						df3_day = df3.groupby('day').sum()
-						df3_day['day'] = df3_day.index
-						b = st.checkbox('data')
-						if b == True:
-							if sel_col == colum_list[0]:
-								product_list = [i for i in df3_sum['商品'].unique()]
-								options = st.sidebar.multiselect('商品を選択してください',product_list, product_list)
-								df3_sum = df3_sum.loc[options]
-								
-								value = '正味重量_明細'
-								st.write(df3_sum.loc[:,['正味重量_明細','金額']])
-								st.bar_chart(df3_sum.loc[:,'正味重量_明細'])
-								fig = px.pie(df3_sum, values=value, names='商品')
-								fig.update_layout(margin=dict(t=20, b=20, l=20, r=20))
-								st.plotly_chart(fig)
-								data_check = st.checkbox('check')
-								if data_check == True:
-									if len(month_list) == 1:
-										st.write(f'{month_list[0]}月 日量推移')
-										st.bar_chart(df3_day[sel_col])
-										sum_kg = df3_day[value].sum()
-										st.write(f'{month_list[0]}月 合計{sum_kg}kg')
-									else:
-										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-										df3 = df3[df3['month'] == choice_month]
-										df3_day = df3.groupby('day').sum()
-										st.write(f'{choice_month}月 日量推移')
-										st.bar_chart(df3_day[sel_col])
-										sum_kg = df3_day[value].sum()
-										st.write(f'{choice_month}月 合計{sum_kg}kg')
-							
-							else:
-								value = '金額'
-								if len(df3_sum['商品']) < 15:
-									st.write(f'{chose}: データ全体 :商品構成比 {colum_list[1]}')	
-									fig = px.pie(df3_sum, values=value, names='商品')
-									st.plotly_chart(fig)
-								else:
-									st.bar_chart(df3_sum.loc[:,value])
-
-								data_check = st.checkbox('check')
-								if data_check == True:
-									if len(month_list) == 1:
-										st.write(f'{month_list[0]}月 売上金額推移')
-										st.bar_chart(df3_day[sel_col])
-										sum_kg = df3_day[value].sum()
-										st.write(f'{month_list[0]}月 合計{sum_kg}円')
-
-									else:
-										choice_month = st.select_slider('選択してください', month_list, options=month_list[0])
-										df3 = df3[df3['month'] == choice_month]
-										df3_day = df3.groupby('day').sum()
-										st.write(f'{choice_month}月 売上推移')
-										st.bar_chart(df3_day[sel_col])
-										sum_kg = df3_day[value].sum()
-										st.write(f'{choice_month}月 合計{sum_kg}円')
-								
-								
 
 

@@ -10,3 +10,5 @@ xgboost
 lightgbm
 plotly
 pydeck
+japanize-matplotlib
+jinja2
