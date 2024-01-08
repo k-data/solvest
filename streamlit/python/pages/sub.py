@@ -169,7 +169,7 @@ with col4:
 	with ex4:
 		st.write(f'単位: {unit}')
 		fig, ax = plt.subplots()
-		sns.scatterplot(data=df_concat_type, x='混合廃棄物', y='廃ﾌﾟﾗｽﾁｯｸ類', hue=value, size=value, ax=ax)
+		sns.scatterplot(data=df_concat, x='混合廃棄物', y='廃ﾌﾟﾗｽﾁｯｸ類', hue=value, size=value, ax=ax)
 		plt.legend()
 		st.pyplot(fig)
 		
